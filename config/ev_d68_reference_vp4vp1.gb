@@ -1,0 +1,72 @@
+LOCUS       KX675261                2583 bp    DNA              UNK 01-JAN-1980
+DEFINITION  Enterovirus D68 strain USA/FL/2016-19504, complete genome.
+ACCESSION   KX675261
+VERSION     KX675261.1
+KEYWORDS    .
+SOURCE      .
+  ORGANISM  .
+            .
+FEATURES             Location/Qualifiers
+     source          1..2583
+                     /organism="Enterovirus D68"
+                     /mol_type="genomic RNA"
+                     /strain="USA/FL/2016-19504"
+                     /isolation_source="nasal swab"
+                     /host="Homo sapiens"
+                     /db_xref="taxon:42789"
+                     /country="USA: FL"
+                     /collection_date="31-Mar-2016"
+     CDS             1..207
+                     /gene="VP4"
+     CDS             208..951
+                     /gene="VP2"
+     CDS             952..1656
+                     /gene="VP3"
+     CDS             1657..2583
+                     /gene="VP1"
+ORIGIN
+        1 atgggagctc aggtcactag acaacaaact ggcactcacg aaaatgccaa tgttgccaca
+       61 aatggatctc atatcacata caatcagata aacttttata aggatagtta tgcagcttca
+      121 gccagcaagc aggatttttc acaggaccca tcgaaattca ctgaaccagt agtggaaggt
+      181 ttgaaagcag gagcgccagt tttgaaatct cctagtgctg aggcgtgtgg ctacagtgat
+      241 agagtgctac agcttaaatt aggtaattca gctatcgtca cccaggaagc agcaaactac
+      301 tgctgtgctt atggtgaatg gcccaattac ttaccagacc atgaagcagt agccattgac
+      361 aaacccacac aaccagaaac tgctacagat agattctaca ctttgaggtc agtcaaatgg
+      421 gaggctacaa gcacaggatg gtggtggaaa ctacccgatg cactaaataa tataggcatg
+      481 tttgggcaga atgtacagca tcactaccta tatagatctg gtttcttgat tcatgtgcag
+      541 tgtaatgcca caaaattcca tcagggtgcc ttattagtgg tagcaattcc agaacatcag
+      601 aggggagcgc acaacactac cactagtcca gggtttgatg acatcatgaa aggtgaagca
+      661 ggagggacct tcaatcatcc atatgtcctt gatgatggaa cgtcattggc ttgtgcgacg
+      721 atatttccac atcagtggat aaatctgaga actaacaatt cagcaacaat tgttcttccc
+      781 tggatgaatg ctgctccaat ggacttccca cttagacata atcagtggac actagcaata
+      841 ataccagtgg tgccattagg cacgcgtaca atgtcaagca tggtcccaat aacagtttca
+      901 attgctccaa tgtgttgtga gtttaatgga ctcagacacg ccattactca aggtgtccca
+      961 acataccttt taccaggctc gggacaattc ctaacaactg atgatcatag ctctgcaccg
+     1021 gttctcccgt gtttcaaccc aactccagag atgcacattc cagggcaggt ccgtaatatg
+     1081 ctagaagtgg tccaagtgga atcaatgatg gagatcaaca acacagaaag tgcggttggt
+     1141 atggagcgtc tcaaggttga catatcagca ttgacagatg tcgatcaatt gttattcaac
+     1201 attccactgg atatacaatt ggatgggcca cttagaaaca ctttagtagg aaacatatct
+     1261 agatactata ctcattggtc tggatcccta gaaatgacat ttatgttttg tggcagcttt
+     1321 atggcgacag gaaaattaat cctgtgctat actcctccag gtgggtcatg cccgacaacc
+     1381 agagagaccg ccatgttagg tacacatatt gtttgggatt ttggactaca atctagtata
+     1441 accctgataa taccttggat tagtggatcc cactacagga tgttcaataa tgatgctaag
+     1501 tcaactaatg ctaacgttgg ctatgtcact tgtttcatgc agaccaatct gatagtcccc
+     1561 agtgaatcct ctgacacatg ttccttgata gggttcatag cagcaaaaga tgatttctcc
+     1621 ctcaggttaa tgagagacag ccctgacatt ggacaattag accacttaca tggagcagag
+     1681 gcagcctacc agatcgaggg catcattaaa acagcaactg ataccgtgaa aagtgagatt
+     1741 aacgctgaac ttggtgtggt ccctagctta aatgcagttg aaacaggtgc aacatctaac
+     1801 actgaaccag aagaagctat acaaactcgc acagtgataa atcaacacgg tgtatccgaa
+     1861 actctagtgg agaattttct cagtagagca gctttggtgt caaagagaag tttcgaatac
+     1921 aaagaccata cttcgtctgc agcacaagca gataagaact ttttcaaatg gacaattaac
+     1981 accaggtcct tcgtacagct aagaagaaag ttagaattat tcacatacct tagattcgat
+     2041 gctgagatca ctatactcac aactgtagca gtgaatggca gtagtaataa tacatatgtg
+     2101 ggtcttcctg acttgacact gcaggcaatg tttgtaccca ctggtgccct taccccagaa
+     2161 aagcaagact cattccactg gcagtcaggt agtaatgcta gtgtattctt taaaatctct
+     2221 gaccccccag ccagaatgac catacctttt atgtgtatta attcagcata ctcagttttt
+     2281 tatgatggct ttgccggatt tgagaaaact ggtctgtatg gaataaatcc agctgacact
+     2341 attggtaact tgtgtgttag aatagtgaat gaacaccaac cagttggttt cacagtgact
+     2401 gttagggttt acatgaagcc taaacacata aaagcgtggg caccacgacc accacgaacc
+     2461 ctgccataca tgagtattgc aaatgcaaat tacaaaggta aagaaagagc accaaatgcg
+     2521 ctcaatgcta taattggcaa tagagacagt gttaaaacca tgcctcataa tatagtgact
+     2581 act
+//
