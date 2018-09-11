@@ -4,13 +4,60 @@ rule files:
         dropped_strains = "config/dropped_strains.txt",
         reference = "config/ev_d68_reference_genome.gb",
         colors = "config/colors.tsv",
+        clades = "config/clades.tsv",
         auspice_config = "config/auspice_config.json"
 
 files = rules.files.params
 
+
+rule download_seqs:
+    input:
+        meta = "data/20180902_GenBank.csv"
+    output:
+        sequences = "results/genbank_sequences.fasta",
+        meta = "results/genbank_meta.tsv"
+    run:
+        import pandas as pd
+        from Bio import Entrez, SeqIO
+        from augur.parse import forbidden_characters
+        Entrez.email = "richard.neher@unibas.ch"
+
+        meta = pd.read_csv(input.meta, sep=',')
+        additional_meta = {}
+        with open(output.sequences, 'w') as fh:
+            for ri, row in meta.iterrows():
+                try:
+                    handle = Entrez.efetch(db="nucleotide", id=row.accession, rettype="gb", retmode="text")
+                except:
+                    print(row.accession, "did not work")
+                    continue
+                print(row.strain, row.accession)
+                rec = SeqIO.read(handle, 'genbank')
+                try:
+                    authors = rec.annotations['references'][0].authors
+                    title = rec.annotations['references'][0].title
+                except:
+                    authors = ''
+                    title = ''
+
+                url = 'https://www.ncbi.nlm.nih.gov/nuccore/'+row.accession
+                additional_meta[ri] = {'url':url, 'authors':authors, 'title':title}
+                tmp = row.strain
+                for c,r in forbidden_characters:
+                    tmp=tmp.replace(c,r)
+                rec.id = tmp
+                rec.name = tmp
+                rec.description = ''
+                SeqIO.write(rec, fh, 'fasta')
+
+        add_meta = pd.DataFrame(additional_meta).transpose()
+        all_meta = pd.concat((meta, add_meta), axis=1)
+        all_meta.to_csv(output.meta, sep='\t')
+
+
 rule concat_meta:
     input:
-        metadata = ["data/EVD68_from_sweden.csv", "data/EVD68_minor_from_sweden.csv", "data/EVD68_VIPR.csv"]
+        metadata = ["data/20180902_Karolinska.csv", rules.download_seqs.output.meta]
     output:
         metadata = "results/metadata.tsv"
     run:
@@ -19,10 +66,6 @@ rule concat_meta:
         md = []
         for fname in input.metadata:
             tmp = pd.read_csv(fname, sep='\t' if fname.endswith('tsv') else ',')
-            tmp_dates = []
-            for x in tmp.date:
-                tmp_dates.append(fix_dates(x, dayfirst='VIPR' not  in fname))
-            tmp.date = tmp_dates
             tmp_name = []
             for x in tmp.strain:
                 f = x
@@ -34,19 +77,19 @@ rule concat_meta:
         all_meta = pd.concat(md)
         all_meta.to_csv(output.metadata, sep='\t')
 
-rule concat_seqs:
+rule concat_sequences:
     input:
-        fasta = ["data/ev_d68_genomes.fasta", "data/ev_d68_genomes_sweden.fasta", "data/ev_d68_minor_genomes_sweden.fasta"]
+        rules.download_seqs.output.sequences, "data/ev_d68_genomes_sweden.fasta"
     output:
-        sequences = "results/sequences.fasta"
+        "results/sequences.fasta"
     shell:
-        """
-        cat {input.fasta} > {output.sequences}
-        """
+        '''
+        cat {input} > {output}
+        '''
 
 rule filter:
     input:
-        sequences = rules.concat_seqs.output.sequences,
+        sequences = rules.concat_sequences.output,
         metadata = rules.concat_meta.output.metadata,
         exclude = files.dropped_strains
     output:
@@ -54,7 +97,7 @@ rule filter:
     params:
         sequences_per_category = 200,
         categories = "country year month",
-        min_date = 2000
+        min_date = 1980
     shell:
         """
         augur filter --sequences {input.sequences} --metadata {input.metadata} \
@@ -82,7 +125,7 @@ rule sub_alignments:
     output:
         subaln = ["results/aligned_vp4vp1.fasta", "results/aligned_p2p3.fasta"]
     params:
-        boundaries = [(699,3282), (3282,7263)]
+        boundaries = [(732,3315), (3315,7296)]
     run:
         from Bio import AlignIO
         aln = AlignIO.read(input[0], 'fasta')
@@ -111,7 +154,7 @@ rule refine:
         tree = "results/tree_{seg}.nwk",
         node_data = "results/branch_lengths_{seg}.json"
     params:
-        clock_filter_iqd = 4
+        clock_filter_iqd = 5
     shell:
         """
         augur refine --tree {input.tree} --alignment {input.alignment} \
@@ -126,26 +169,42 @@ rule ancestral:
         tree = rules.refine.output.tree,
         alignment = 'results/aligned_{seg}.fasta',
     output:
-        node_data = "results/nt_muts_{seg}.json"
+        nt_data = "results/nt_muts_{seg}.json"
     params:
         inference = "joint"
     shell:
         """
         augur ancestral --tree {input.tree} --alignment {input.alignment} \
-            --output {output.node_data} --inference {params.inference}
+            --output {output.nt_data} --inference {params.inference}
         """
 
 rule translate:
     input:
         tree = rules.refine.output.tree,
-        node_data = rules.ancestral.output.node_data,
+        node_data = rules.ancestral.output.nt_data,
         reference = 'config/ev_d68_reference_{seg}.gb'
     output:
-        node_data = "results/aa_muts_{seg}.json"
+        aa_data = "results/aa_muts_{seg}.json"
     shell:
         """
         augur translate --tree {input.tree} --ancestral-sequences {input.node_data} \
-            --output {output.node_data} --reference-sequence {input.reference}
+            --output {output.aa_data} --reference-sequence {input.reference}
+        """
+
+rule clades:
+    input:
+        tree = rules.refine.output.tree,
+        aa_muts = rules.translate.output.aa_data,
+        nuc_muts = rules.ancestral.output.nt_data,
+        clades = files.clades
+    output:
+        clade_data = "results/clades_{seg}.json"
+    shell:
+        """
+        augur clades --tree {input.tree} \
+            --mutations {input.nuc_muts} {input.aa_muts} \
+            --clades {input.clades} \
+            --output {output.clade_data}
         """
 
 rule traits:
@@ -167,18 +226,18 @@ rule export:
         tree = rules.refine.output.tree,
         metadata = rules.concat_meta.output.metadata,
         branch_lengths = rules.refine.output.node_data,
-        traits = rules.traits.output.node_data,
-        nt_muts = rules.ancestral.output.node_data,
-        aa_muts = rules.translate.output.node_data,
+        nt_muts = rules.ancestral.output.nt_data,
+        aa_muts = rules.translate.output.aa_data,
         colors = files.colors,
+        clades = rules.clades.output.clade_data,
         auspice_config = files.auspice_config
     output:
-        auspice_tree = "auspice/ev_d68_{seg}_tree.json",
-        auspice_meta = "auspice/ev_d68_{seg}_meta.json"
+        auspice_tree = "auspice/enterovirus_d68_{seg}_tree.json",
+        auspice_meta = "auspice/enterovirus_d68_{seg}_meta.json"
     shell:
         """
         augur export --tree {input.tree} --metadata {input.metadata} \
-            --node-data {input.branch_lengths} {input.traits} {input.nt_muts} {input.aa_muts} \
+            --node-data {input.branch_lengths} {input.nt_muts} {input.aa_muts} {input.clades}\
             --colors {input.colors} --auspice-config {input.auspice_config} \
             --output-tree {output.auspice_tree} --output-meta {output.auspice_meta}
         """
